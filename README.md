@@ -11,11 +11,12 @@ A program in Vocal comprises a two-dimensional grid.
 
 ## Examples
 
-
+The below is a small program that will simply print to output all the input arguments.
+Note that the second line consists of 3 spaces, and is not a blank line.
 
 ```
 $*Z
-
+   
 >>.
 ```
 

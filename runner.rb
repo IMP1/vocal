@@ -107,6 +107,10 @@ module Vocal; class Runner
         return any_changes
     end
 
+    def get_arg_input
+        return @input.shift
+    end
+
     def new_cell(char, i, j)
         if /[\da-fA-F]/ === char
             return Value.new(char.to_i(16), char, [i, j])

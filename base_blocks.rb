@@ -25,6 +25,22 @@ Vocal.TILE :ActiveInput, '£', 'Ϟ' do |options|
     end
 end
 
+Vocal.TILE :ArgInput, '$', 'α' do |options|
+    options.action do |cell|
+        any_changes = false
+        x, y = *cell.position
+        target = [x, y + 1]
+        if get_cell(*target).empty?
+            value = get_arg_input
+            unless value.nil?
+                add_value(*target, value)
+                any_changes = true
+            end
+        end
+        any_changes
+    end
+end
+
 Vocal.TILE :Scanner, '*' do |options|
     options.action do |cell|
         any_changes = false

@@ -10,6 +10,14 @@ SISYPHUS = <<-END
 
 END
 
+PRINTER = <<-END
+
+$*Z
+   
+>>.
+
+END
+
 CODE = <<-END
 
 .@.........
@@ -28,5 +36,5 @@ options = {
     delay: 0.2,
     trace: true,
 }
-runner = Vocal::Runner.new(SISYPHUS, "test_prog", [], options)
+runner = Vocal::Runner.new(PRINTER, "test_prog", [1, 2, 3, 4], options)
 runner.run
