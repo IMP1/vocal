@@ -38,7 +38,7 @@ Vocal.TILE :Scanner, '*' do |options|
     end
 end 
 
-Vocal.TILE :Furnace, 'Z', 'Ω' do |options|
+Vocal.TILE :Discarder, 'Z', 'Ω' do |options|
     options.action do |cell|
         any_changes = false
         x, y = *cell.position
