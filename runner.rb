@@ -1,7 +1,7 @@
 module Vocal; class Runner
 
     def initialize(initial_world, world_name, args=nil, options=nil)
-        @world = initial_world.strip.split("\n").map.with_index do |row, j|
+        @world = initial_world.split("\n").map.with_index do |row, j|
             row.split("").map.with_index do |char, i|
                 new_cell(char, i, j)
             end
@@ -28,13 +28,11 @@ module Vocal; class Runner
             begin
                 changes = tick
                 break if not changes
-                draw
                 sleep(@delay)
             rescue SignalException
                 break
             end
         end
-        draw
         finish
     end
 
@@ -78,16 +76,18 @@ module Vocal; class Runner
 
         # Run
         Vocal.priorities.each do |cell_class|
+            changes = false
             cells = all_cells.select { |cell| cell.is_a?(cell_class) }
             if cell_class.ordering
                 cells = cells.sort_by(&cell_class.ordering)
             end
             if cell_class.action
                 cells.each do |cell|
-                    changes = self.instance_exec(cell, &cell_class.action)
-                    any_changes ||= changes
+                    changes ||= self.instance_exec(cell, &cell_class.action)
                 end
             end
+            draw if (changes and @tracing)
+            any_changes ||= changes
         end
         #---
         # Gravity
@@ -97,7 +97,7 @@ module Vocal; class Runner
                  .each do |entity|
             x, y = *entity.position
             below = get_cell(x, y + 1)
-            if below.empty?
+            if below.empty? and not entity.moved
                 set_cell(x, y + 1, entity)
                 clear_cell(x, y)
                 any_changes = true
@@ -160,15 +160,16 @@ module Vocal; class Runner
         if get_cell(*target).empty?
             set_cell(*target, value)
             clear_cell(x, y)
+            value.moved = true
             return true
-        # TODO: add pushing up ramps
-        # elsif (get_cell(*target).type == :ramp_right and dx > 0) or 
-              # (get_cell(*target).type == :ramp_left and dx < 0)
-            # if get_cell(x + dx, y - 1).empty?
-                # set_cell(x + dx, y - 1, value)
-                # clear_cell(x, y)
-                # return true
-            # end
+        elsif (get_cell(*target).is_a?(RampRight) and dx > 0) or 
+              (get_cell(*target).is_a?(RampLeft) and dx < 0)
+            if get_cell(x + dx, y - 1).empty?
+                set_cell(x + dx, y - 1, value)
+                clear_cell(x, y)
+                value.moved = true
+                return true
+            end
         end
         return false
     end
