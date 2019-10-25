@@ -165,7 +165,7 @@ Vocal.TILE :RampRight, '/', 'л' do |options|
         x, y = *cell.position
         entity = get_cell(x, y - 1)
         below = get_cell(x - 1, y)
-        if entity.dynamic? and below.empty?
+        if entity.dynamic? and below.empty? and not entity.moved
             set_cell(x - 1, y, entity)
             clear_cell(x, y - 1)
             any_changes = true
@@ -184,7 +184,7 @@ Vocal.TILE :RampLeft, '\\', 'ι' do |options|
         x, y = *cell.position
         entity = get_cell(x, y - 1)
         below = get_cell(x + 1, y)
-        if entity.dynamic? and below.empty?
+        if entity.dynamic? and below.empty? and not entity.moved
             set_cell(x + 1, y, entity)
             clear_cell(x, y - 1)
             any_changes = true
@@ -210,6 +210,30 @@ Vocal.TILE :Counter, '@', '©' do |options|
             end
             any_changes = true
         end            
+        any_changes
+    end
+end
+
+Vocal.TILE :Gate, ':', '⁞' do |options|
+end
+
+Vocal.TILE :GateControl, 'Y', 'Џ' do |options|
+    options.action do |cell|
+        any_changes = false
+        x, y = *cell.position
+        reference = get_cell(x, y - 1)
+        gate = get_cell(x, y + 1)
+        target = get_cell(x - 1, y + 1)
+        if (target.is_a?(Value) and target.value == reference.value)
+            if gate.is_a?(Tile)
+                clear_cell(*gate.position)
+                any_changes = true
+            end
+        elsif gate.empty?
+            entity = Gate.new(x, y + 1)
+            set_cell(x, y + 1, entity)
+            any_changes = true
+        end
         any_changes
     end
 end
