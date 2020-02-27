@@ -1,0 +1,48 @@
+#!/usr/bin/env ruby
+
+require_relative 'base_blocks'
+require_relative 'runner'
+
+args = [*ARGV]
+
+# Positional Args
+input_file = args.shift
+program_source = File.read(input_file)
+
+program_name = args.shift
+
+# Flags & Options
+options = {
+    delay: 0.8,
+    trace: true,
+    output: $stdout,
+}
+if args.include?("--delay")
+    i = args.index("--delay")
+    _, delay = *args.slice(i, 2)
+    options[:delay] = delay
+end
+if args.include?("--output")
+    i = args.index("--output")
+    _, output = *args.slice(i, 2)
+    options[:output] = File.open(output, 'r')
+end
+if args.include?("--frames")
+    i = args.index("--frames")
+    _, frames = *args.slice(i, 2)
+    options[:frames] = frames
+end
+if args.include?("--trace")
+    options[:trace] = true
+    args.remove("--trace")
+end
+
+# Remaining args
+args.map! do |arg| 
+    case arg
+    when /[0-9A-F]/ 
+        arg.to_i(16)
+    end
+end
+runner = Vocal::Runner.new(program_source, program_name, args, options)
+runner.run
