@@ -9,6 +9,9 @@ module Vocal; class Runner
         @options = options || {}
         @delay = @options[:delay] || 0.1
         @tracing = @options[:trace] || false
+        @output_target = @options[:output] || $stdout
+        @frames_directory = @options[:frames] || nil
+        @current_frame = 0
 
         @name = world_name
         @input = [*args]
@@ -43,26 +46,37 @@ module Vocal; class Runner
         unless @tracing
             system("clear") || system("cls")
         end
-        $stdout.puts "\n"
-        @world.each do |row|
-            $stdout.puts row.map { |cell| cell.glpyh }.join("")
+        if @frames_directory
+            File.open(File.join(@frames_directory, "frame_#{@current_frame}.vocal"), 'w') do |f|
+                draw_world(f)
+            end
+            @current_frame += 1
+        else
+            draw_world(@output_target)
+            @output_target.flush
         end
-        $stdout.flush
+    end
+
+    def draw_world(target)
+        @world.each do |row|
+            target.puts row.map { |cell| cell.glpyh }.join("")
+        end
+        target.puts "\n"
     end
 
     def finish
         unless @output.empty?
-            $stdout.puts "\n"
+            @output_target.puts "\n"
             @output.each do |output|
-                $stdout.print(output)
+                @output_target.print(output)
             end
-            $stdout.print "\n"
+            @output_target.print "\n"
         end
         unless @debug.empty?
-            $stdout.puts "\n"
-            $stdout.puts @debug.join("\n")
+            @output_target.puts "\n"
+            @output_target.puts @debug.join("\n")
         end
-        $stdout.flush
+        @output_target.flush
     end
 
     def tick
